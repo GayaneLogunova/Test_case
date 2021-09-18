@@ -47,17 +47,18 @@ class LessonsService {
 
     createLesson(date, title) { return { date, title, status: 0 } }
 
-    createLessonToTeacherToCreate(lessonIds, teacherIds) {
-        let lessonToTeacherToCreate = [];
+    createLessonToTeacherRealtion(lessonIds, teacherIds) {
+        let lessonToTeacherRelation = [];
         for (const lessonId of lessonIds) {
             for (const teacherId of teacherIds) {
-                lessonToTeacherToCreate.push({
+                lessonToTeacherRelation.push({
                     lesson_id: lessonId,
                     teacher_id: teacherId,
                 });
             }
         }
-        return lessonToTeacherToCreate;
+
+        return lessonToTeacherRelation;
     }
 
     range(start, count) {
@@ -85,18 +86,18 @@ class LessonsService {
             return 'Some teachers not found';
         }
 
-        let lessonsToCreate = [];
+        let lessons = [];
         const upperBound = this.countUpperBound(firstDate, currentDate, days, lessonsDTO.lessonsCount, lessonsDTO.lastDate);
 
         while (index < upperBound) {
-            lessonsToCreate.push(this.createLesson(currentDate, lessonsDTO.title));
+            lessons.push(this.createLesson(currentDate, lessonsDTO.title));
             currentDate = this.findNextDate(currentDate, days);
             index++;
         }
 
-        const [id] = await lessonsDAO.createLessons(lessonsToCreate);
+        const [id] = await lessonsDAO.createLessons(lessons);
         lessonIds = this.range(id - upperBound + 1, upperBound);
-        await lessonsDAO.createLessonsToTeachers(this.createLessonToTeacherToCreate(lessonIds, lessonsDTO.teacherIds));
+        await lessonsDAO.createLessonsToTeachers(this.createLessonToTeacherRealtion(lessonIds, lessonsDTO.teacherIds));
         return lessonIds;
     }
 
