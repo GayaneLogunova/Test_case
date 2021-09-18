@@ -11,9 +11,8 @@ class FilterFunctions {
         status !== undefined && qb.where('lessons.status', status)
     }
 
-    filterByTeachers(qb, teacherIds, selectedTeachers) {
-        const selectedTeacherIds = selectedTeachers.map(({ lesson_id }) => lesson_id);
-        teacherIds && qb.whereIn('lessons.id', selectedTeacherIds)
+    filterByTeachers(qb, teacherIds) {
+        teacherIds && qb.whereIn('lesson_teachers.teacher_id', teacherIds.split(','))
     }
 
     filterByStudents(qb, studentsCount, countedStudents) {

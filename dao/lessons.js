@@ -1,46 +1,47 @@
 const db = require('../db/db');
 const filterFunctions = require('./filter-functions');
+const range = require('../service/tools');
+const createLessonToTeacherRealtion = require('../service/lessons-teachers-relation-creation');
+const { default: knex } = require('knex');
 
 class LessonsDAO {
-    async createLessons(lessonsToCreate) {
-        return db('lessons')
-            .insert(lessonsToCreate.map(lesson => ({ ...lesson })))
-            .returning('id')
+    async createLessonsAndRelationToTeachers(lessonsToCreate, quantity, teacherIds) {
+        let [id];
+        await db.transaction(async (trx) => {
+            [id] = trx('lessons')
+                .insert(lessonsToCreate.map(lesson => ({ ...lesson })))
+                .returning('id')
+
+            const lessonIds = range(id - quantity + 1, quantity);
+            const lessonsToTeachersRelation = createLessonToTeacherRealtion(lessonIds, teacherIds);
+
+            await trx('lesson_teachers')
+                .insert(lessonsToTeachersRelation
+                .map(lessonToTeacherRelation => ({ ...lessonToTeacherRelation })))
+        })
+        return id;
     }
 
-    async createLessonsToTeachers(lessonsToTeachersToCreate) {
-        return db('lesson_teachers')
-            .insert(lessonsToTeachersToCreate
-            .map(lessonToTeacher => ({ ...lessonToTeacher })))
-            .returning('lesson_id')
-        
-    }
 
     async filterLessons(filterParams) {
         let limit = 'ALL';
         let offset = 0;
-        let selectedTeachers = [];
 
         if (filterParams.page) {
             limit = filterParams.lessonsPerPage || 5;
             offset = (filterParams.page - 1) * limit;
         }
         
-        if (filterParams.teacherIds) {
-            selectedTeachers = await db('lesson_teachers')
-                .select('*')
-                .whereIn('teacher_id', filterParams.teacherIds.split(','))
-        }
-
         const countedStudents = await db('lesson_students')
             .select('lesson_id')
             .count('*')
             .groupBy('lesson_id')
         
         const filteredLessons = await db('lessons')
+            .join('lesson_teachers', 'lessons.id', 'lesson_teachers.lesson_id')
             .where((qb) => { filterFunctions.filterByDate(qb, filterParams.date) })
             .where((qb) => { filterFunctions.filterByStatus(qb, filterParams.status) })
-            .where((qb) => { filterFunctions.filterByTeachers(qb, filterParams.teacherIds, selectedTeachers) }) 
+            .where((qb) => { filterFunctions.filterByTeachers(qb, filterParams.teacherIds) }) 
             .where((qb) => { filterFunctions.filterByStudents(qb, filterParams.studentsCount, countedStudents) })
             .select('*')
             .orderBy('lessons.id', 'asc')

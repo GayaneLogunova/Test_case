@@ -1,9 +1,10 @@
-const lessonsService = require('../service/lessons');
+const lessonsCreationService = require('../service/lessons-creation');
+const lessonsFiltrationSevice = require('../service/lessons-filtration');
 
 class LessonsController {
     async createLessons(req, res) {
         try {
-            const id = await lessonsService.createLessons(req.body);
+            const id = await lessonsCreationService.createLessons(req.body);
             res.status(201).json(id);
         } catch (err) {
             res.status(520).json("something went wrong during lessons creation");
@@ -12,7 +13,7 @@ class LessonsController {
 
     async filterLessons(req, res) {
         try {
-            const lessons = await lessonsService.filterLessons(req.body);
+            const lessons = await lessonsFiltrationSevice.filterLessons(req.body);
             res.status(200).json(lessons);
         } catch (err) {
             res.status(520).json("something went wrong during filtration");
