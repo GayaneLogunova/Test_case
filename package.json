@@ -1,0 +1,20 @@
+{
+  "name": "node-project",
+  "version": "0.0.0",
+  "description": "test",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "date-fns": "^2.24.0",
+    "express": "^4.17.1",
+    "jest": "^27.2.0",
+    "knex": "^0.95.11",
+    "pg": "^8.7.1",
+    "yup": "^0.32.9"
+  }
+}
