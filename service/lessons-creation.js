@@ -10,6 +10,7 @@ class LessonsService {
         const daysToAdd = days[index % days.length] > firstDateWeekDay
             ? days[index % days.length] - firstDateWeekDay
             : 6 - firstDateWeekDay + days[index % days.length] + 1
+
         return new Date(new Date(firstDate).setDate(new Date(firstDate).getDate() + daysToAdd));
     }
 
@@ -36,18 +37,19 @@ class LessonsService {
             let startDate = firstDate;
             let endDate = currentDate;
             while (daysLeft > diff) {
+                console.log(1)
                 upperBound++;
                 daysLeft -= diff;
                 startDate = endDate;
                 endDate = this.findNextDate(startDate, days);
-                diff = this.getDifferenceInDays(endDate, firstDate);
+                diff = this.getDifferenceInDays(firstDate, endDate);
             }
             upperBound = upperBound > 300 ? 300 : upperBound;
             return upperBound;
         }
     }
 
-    createLesson(date, title) { return { date: new Date(date), title, status: 0 } }
+    getLesson(date, title) { return { date: new Date(date), title, status: 0 } }
 
     async createLessons(lessonsDTO) {
         const firstDate = lessonsDTO.firstDate;
@@ -67,11 +69,11 @@ class LessonsService {
 
         let lessons = [];
         const upperBound = this.getUpperBound(firstDate, currentDate, days, lessonsDTO.lessonsCount, lessonsDTO.lastDate);
-
+        console.log('upperBound', upperBound);
         while (index < upperBound) {
-            lessons.push(this.createLesson(currentDate, lessonsDTO.title));
+            lessons.push(this.getLesson(currentDate, lessonsDTO.title));
             currentDate = this.findNextDate(currentDate, days);
-            
+            console.log('abobd');
             index++;
         }
 

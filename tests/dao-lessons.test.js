@@ -107,8 +107,8 @@ function generateValidLessonsDTO() {
   const firstDate = "2019-09-01";
 
   let validResponse = [];
-  // const amountOfLessons = getRandomInt(300) + 1;
   const amountOfLessons = 2;
+  // const amountOfLessons = getRandomInt(300) + 1;
 
   let index = 1;
   let date = days.includes(new Date(firstDate).getDay()) ? firstDate : lessonsCreation.findNextDate(firstDate, days);
@@ -117,12 +117,11 @@ function generateValidLessonsDTO() {
       validResponse.push({ title: "Blue ocean", date: format(new Date(date), 'yyyy-MM-dd'), status: 0, teacherId });
     }
     index++;
-    const nextDate = lessonsCreation.findNextDate(firstDate, days);
+    const nextDate = lessonsCreation.findNextDate(date, days);
     if (lessonsCreation.getDifferenceInDays(firstDate, nextDate) > 366) {
       break;
     }
-
-    date = amountOfLessons >= index ? lessonsCreation.findNextDate(firstDate, days) : date;
+    date = amountOfLessons >= index ? lessonsCreation.findNextDate(date, days) : date;
   }
 
   if (getRandomInt(2) === 0) {
@@ -164,16 +163,12 @@ function generateValidLessonsDTO() {
 // });
 
 test('test lessons creation', async () => {
-  const {lessonsDTO, validResponse} = generateValidLessonsDTO();
-  console.log('lessonsDTO', lessonsDTO, 'validREposnse', validResponse);
-  
+  const { lessonsDTO, validResponse } = generateValidLessonsDTO();
+  console.log(lessonsDTO, validResponse);
   const { body } = await createLessons(lessonsDTO);
   const lessonIds = range(body[0], validResponse.length / lessonsDTO.teacherIds.length)
-  console.log(lessonIds)
-  console.log('body', body);
   const createdLessonsAndTeachersRelations = await getLessons(lessonIds);
-  console.log('createdLessons', createdLessonsAndTeachersRelations);
-  await expect(createdLessonsAndTeachersRelations).toBe(validResponse);
+  await expect(createdLessonsAndTeachersRelations).toStrictEqual(validResponse);
 });
 
 // test('test valida creation request', async () => {
