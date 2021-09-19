@@ -23,14 +23,15 @@ class LessonsService {
 
         if (lessonsCount) {
             let maxLessonsInYear = Math.floor(365 / 7) * days.length;
-            maxLessonsInYear = new Date(firstDate).getTime() === new Date(currentDate).getTime() ? maxLessonsInYear + 1 : maxLessonsInYear;
+            maxLessonsInYear = days.includes(new Date(firstDate).getDay() + 1) ? maxLessonsInYear + 1 : maxLessonsInYear;
 
             upperBound = lessonsCount > 300 ? 300 : lessonsCount;
+            console.log('maxLessonsInYear', maxLessonsInYear);
             upperBound = upperBound > maxLessonsInYear ? maxLessonsInYear : upperBound;
             return upperBound;
         } else {
             const diffInDays = this.getDifferenceInDays(firstDate, lastDate);
-            const realDiffInDays = diffInDays > 365 ? 365 : diffInDays;
+            const realDiffInDays = diffInDays > 366 ? 365 : diffInDays;
             upperBound = Math.floor(realDiffInDays / 7) * days.length;
             let daysLeft =  realDiffInDays % 7;
             let diff = this.getDifferenceInDays(firstDate, currentDate);
@@ -73,7 +74,6 @@ class LessonsService {
         while (index < upperBound) {
             lessons.push(this.getLesson(currentDate, lessonsDTO.title));
             currentDate = this.findNextDate(currentDate, days);
-            console.log('abobd');
             index++;
         }
 

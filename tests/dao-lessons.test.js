@@ -102,12 +102,12 @@ function getRandomWeekDays() {
 }
 
 function generateValidLessonsDTO() {
-  const teacherIds = getRandomTeacherIds();
-  const days = getRandomWeekDays();
+  const teacherIds = [3]; //getRandomTeacherIds();
+  const days = [1]; //getRandomWeekDays();
   const firstDate = "2019-09-01";
 
   let validResponse = [];
-  const amountOfLessons = 2;
+  const amountOfLessons = 53;
   // const amountOfLessons = getRandomInt(300) + 1;
 
   let index = 1;
@@ -124,12 +124,12 @@ function generateValidLessonsDTO() {
     date = amountOfLessons >= index ? lessonsCreation.findNextDate(date, days) : date;
   }
 
-  if (getRandomInt(2) === 0) {
+  // if (getRandomInt(2) === 0) {
     return {
       lessonsDTO: { teacherIds, title: "Blue ocean", days, firstDate: "2019-09-01", lessonsCount: index - 1 },
       validResponse,
     };
-  }
+  // }
 
   return {
     lessonsDTO: { teacherIds, title: "Blue ocean", days, firstDate: "2019-09-01", lastDate: format(new Date(date), 'yyyy-MM-dd') },
@@ -164,10 +164,11 @@ function generateValidLessonsDTO() {
 
 test('test lessons creation', async () => {
   const { lessonsDTO, validResponse } = generateValidLessonsDTO();
-  console.log(lessonsDTO, validResponse);
+  console.log('validResponse', validResponse);
   const { body } = await createLessons(lessonsDTO);
   const lessonIds = range(body[0], validResponse.length / lessonsDTO.teacherIds.length)
   const createdLessonsAndTeachersRelations = await getLessons(lessonIds);
+  console.log('createdLessonsAndTeachersRelations', createdLessonsAndTeachersRelations);
   await expect(createdLessonsAndTeachersRelations).toStrictEqual(validResponse);
 });
 

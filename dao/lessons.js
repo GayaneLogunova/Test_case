@@ -5,7 +5,6 @@ const createLessonToTeacherRealtion = require('../service/lessons-teachers-relat
 
 class LessonsDAO {
     async createLessonsAndRelationToTeachers(lessonsToCreate, quantity, teacherIds) {
-        console.log('lessonsToCreate', lessonsToCreate);
         let lessonIds = [];
         await db.transaction(async (trx) => {
             const [id] = await trx('lessons')
