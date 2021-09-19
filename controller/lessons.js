@@ -6,16 +6,18 @@ class LessonsController {
         try {
             const id = await lessonsCreationService.createLessons(req.body);
             res.status(201).json(id);
-        } catch (err) {
-            res.status(520).json("something went wrong during lessons creation");
+        } catch (error) {
+            res.status(520).json(error.message);
         }
     }
 
     async filterLessons(req, res) {
         try {
             const lessons = await lessonsFiltrationSevice.filterLessons(req.body);
+            // console.log("lessons", lessons);
             res.status(200).json(lessons);
         } catch (err) {
+            console.log('errrrrrrrrrrrrrrrrrrror');
             res.status(520).json("something went wrong during filtration");
         }
     }

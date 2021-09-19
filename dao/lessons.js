@@ -2,47 +2,67 @@ const db = require('../db/db');
 const filterFunctions = require('./filter-functions');
 const range = require('../service/tools');
 const createLessonToTeacherRealtion = require('../service/lessons-teachers-relation-creation');
-const { default: knex } = require('knex');
 
 class LessonsDAO {
     async createLessonsAndRelationToTeachers(lessonsToCreate, quantity, teacherIds) {
-        let [id];
+        let lessonIds = [];
         await db.transaction(async (trx) => {
-            [id] = trx('lessons')
+            const [id] = await trx('lessons')
                 .insert(lessonsToCreate.map(lesson => ({ ...lesson })))
                 .returning('id')
-
-            const lessonIds = range(id - quantity + 1, quantity);
+            lessonIds = range(id, quantity);
             const lessonsToTeachersRelation = createLessonToTeacherRealtion(lessonIds, teacherIds);
 
             await trx('lesson_teachers')
                 .insert(lessonsToTeachersRelation
                 .map(lessonToTeacherRelation => ({ ...lessonToTeacherRelation })))
         })
-        return id;
+        return lessonIds;
+    }
+
+    async getLessonsAndRelationToTeachers(lessonIds) {
+        return db('lessons')
+            .join('lesson_teachers', 'lessons.id', 'lesson_teachers.lesson_id')
+            .whereIn('lessons.id', lessonIds)
+            .select('*')
+
+            // .select('lessons.title', 'lessons.date', 'lessons.status', 'lesson_teachers.teacher_id')
     }
 
 
     async filterLessons(filterParams) {
+        console.log('filter params 2', filterParams);
         let limit = 'ALL';
         let offset = 0;
+        let selectedTeachers = [];
 
         if (filterParams.page) {
-            limit = filterParams.lessonsPerPage || 5;
+            limit = filterParams.lessonsPerPage;
             offset = (filterParams.page - 1) * limit;
         }
+        
+        console.log('page accepted');
+
+        if (filterParams.teacherIds) {
+            selectedTeachers = await db('lesson_teachers')
+                .select('*')
+                .whereIn('teacher_id', filterParams.teacherIds.split(','))
+        }
+
+        console.log('teachers accepted');
         
         const countedStudents = await db('lesson_students')
             .select('lesson_id')
             .count('*')
             .groupBy('lesson_id')
         
+        console.log('filterLEsosns');
         const filteredLessons = await db('lessons')
-            .join('lesson_teachers', 'lessons.id', 'lesson_teachers.lesson_id')
             .where((qb) => { filterFunctions.filterByDate(qb, filterParams.date) })
             .where((qb) => { filterFunctions.filterByStatus(qb, filterParams.status) })
-            .where((qb) => { filterFunctions.filterByTeachers(qb, filterParams.teacherIds) }) 
+            .where((qb) => { filterFunctions.filterByTeachers(qb, filterParams.teacherIds, selectedTeachers) }) 
             .where((qb) => { filterFunctions.filterByStudents(qb, filterParams.studentsCount, countedStudents) })
+            .groupBy('lessons.id')
             .select('*')
             .orderBy('lessons.id', 'asc')
             .limit(limit)
@@ -57,7 +77,7 @@ class LessonsDAO {
             .whereIn('lesson_id', lessonIds)
             .join('teachers', 'lesson_teachers.teacher_id', 'teachers.id')
             .select('*')
-
+        
         return teachers;
     }
 

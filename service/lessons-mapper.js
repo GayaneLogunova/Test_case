@@ -2,6 +2,7 @@ const { format } = require('date-fns');
 
 class LessonsMapper {
     mapLessons(lessons, students, teachers) {
+        console.log('lessons', lessons);
         return lessons.map(lesson => ({
             id: lesson.id,
             date: format(lesson.date, 'yyyy-MM-dd'),

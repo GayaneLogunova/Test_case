@@ -1,6 +1,10 @@
 npm i
 
-docker-compose down
+docker container kill lessons_task_adminer_1
+docker container kill lessons_task_db_1
+docker rm lessons_task_adminer_1
+docker rm lessons_task_db_1
+
 docker-compose up -d
 
 sleep 2
@@ -11,7 +15,7 @@ docker exec lessons_task_db_1 psql -U postgres -c 'create database test_db;'
 docker exec lessons_task_db_1 psql -h localhost -U postgres -d lessons_reports -f /database/test.sql
 docker exec lessons_task_db_1 psql -h localhost -U postgres -d test_db -f /database/test.sql
 
-docker exec lessons_task_db_1 psql test_db postgres -c 'truncate lessons, lesson_students, lesson_teachers, teachers, students;'
+docker exec lessons_task_db_1 psql test_db postgres -c 'truncate lessons, lesson_students, lesson_teachers;'
 
 if [ "$1" = "test" ];
 then

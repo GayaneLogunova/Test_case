@@ -7,11 +7,14 @@ class LessonsService {
         let index = 0;
         while (index < days.length && days[index] <= firstDateWeekDay) { index++ }
 
-        return new Date(new Date(firstDate).setDate(new Date(firstDate).getDate() + days[index % days.length] - firstDateWeekDay));
+        const daysToAdd = days[index % days.length] > firstDateWeekDay
+            ? days[index % days.length] - firstDateWeekDay
+            : 6 - firstDateWeekDay + days[index % days.length] + 1
+        return new Date(new Date(firstDate).setDate(new Date(firstDate).getDate() + daysToAdd));
     }
 
     getDifferenceInDays(firstDate, endDate) {
-        return Math.ceil(new Date(endDate) - new Date(firstDate) / (1000 * 60 * 60 * 24));
+        return Math.ceil((new Date(endDate) - new Date(firstDate)) / (1000 * 60 * 60 * 24));
     }
 
     getUpperBound(firstDate, currentDate, days, lessonsCount, lastDate) {
@@ -44,12 +47,11 @@ class LessonsService {
         }
     }
 
-    createLesson(date, title) { return { date, title, status: 0 } }
+    createLesson(date, title) { return { date: new Date(date), title, status: 0 } }
 
     async createLessons(lessonsDTO) {
         const firstDate = lessonsDTO.firstDate;
         const days = lessonsDTO.days.sort();
-        let lessonIds = [];
         let index = 0;
         let currentDate;
         
@@ -60,7 +62,7 @@ class LessonsService {
         }
 
         if (!await lessonsDAO.checkIfAllTeachersExists(lessonsDTO.teacherIds)) {
-            return 'Some teachers not found';
+            throw new Error('Some teachers not found');
         }
 
         let lessons = [];
@@ -69,11 +71,11 @@ class LessonsService {
         while (index < upperBound) {
             lessons.push(this.createLesson(currentDate, lessonsDTO.title));
             currentDate = this.findNextDate(currentDate, days);
+            
             index++;
         }
 
-        const [id] = await lessonsDAO.createLessonsAndRelationToTeachers(lessons, upperBound, lessonsDTO.teacherIds);
-        return lessonIds;
+        return await lessonsDAO.createLessonsAndRelationToTeachers(lessons, upperBound, lessonsDTO.teacherIds);
     }
 
 

@@ -8,9 +8,5 @@ module.exports = {
       password : 'example',
       database : process.env.DB_NAME//'lessons_reports'
     },
-    pool: {
-      min: 2,
-      max: 10,
-    },
   },
 };
