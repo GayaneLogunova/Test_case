@@ -1,7 +1,7 @@
 function validateLessonsDTO(schema) {
     return async (req, res, next) => {
         try {
-            const dateFormat = /\d{4}-\d{2}-\d{2}/
+            const dateFormat = /\d{4}-\d{2}-\d{2}/;
             await schema.validate(req.body);
             !dateFormat.test(req.body.firstDate)
                 && res.status(400).json('Date format of first date is invalid. Correct type is yyyy-mm-dd');

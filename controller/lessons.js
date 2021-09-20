@@ -14,7 +14,6 @@ class LessonsController {
     async filterLessons(req, res) {
         try {
             const lessons = await lessonsFiltrationSevice.filterLessons(req.body);
-            // console.log("lessons", lessons);
             res.status(200).json(lessons);
         } catch (err) {
             res.status(520).json("something went wrong during filtration");

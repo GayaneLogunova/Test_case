@@ -31,7 +31,6 @@ class LessonsDAO {
 
 
     async filterLessons(filterParams) {
-        console.log('filter params 2', filterParams);
         let limit = 'ALL';
         let offset = 0;
         let selectedTeachers = [];
@@ -41,22 +40,17 @@ class LessonsDAO {
             offset = (filterParams.page - 1) * limit;
         }
         
-        console.log('page accepted');
-
         if (filterParams.teacherIds) {
             selectedTeachers = await db('lesson_teachers')
                 .select('*')
                 .whereIn('teacher_id', filterParams.teacherIds.split(','))
         }
-
-        console.log('teachers accepted');
         
         const countedStudents = await db('lesson_students')
             .select('lesson_id')
             .count('*')
             .groupBy('lesson_id')
         
-        console.log('filterLEsosns');
         const filteredLessons = await db('lessons')
             .where((qb) => { filterFunctions.filterByDate(qb, filterParams.date) })
             .where((qb) => { filterFunctions.filterByStatus(qb, filterParams.status) })
