@@ -15,7 +15,7 @@ class LessonsService {
     }
 
     getDifferenceInDays(firstDate, endDate) {
-        return Math.ceil((new Date(endDate) - new Date(firstDate)) / (1000 * 60 * 60 * 24));
+        return Math.ceil((new Date(endDate) - new Date(firstDate)) / (1000 * 60 * 60 * 24)) + 1;
     }
 
     getUpperBound(firstDate, currentDate, days, lessonsCount, lastDate) {
@@ -23,27 +23,23 @@ class LessonsService {
 
         if (lessonsCount) {
             let maxLessonsInYear = Math.floor(365 / 7) * days.length;
-            maxLessonsInYear = days.includes(new Date(firstDate).getDay() + 1) ? maxLessonsInYear + 1 : maxLessonsInYear;
+            maxLessonsInYear = days.includes((new Date(firstDate).getDay() + 1) % 7) ? maxLessonsInYear + 1 : maxLessonsInYear;
 
             upperBound = lessonsCount > 300 ? 300 : lessonsCount;
-            console.log('maxLessonsInYear', maxLessonsInYear);
             upperBound = upperBound > maxLessonsInYear ? maxLessonsInYear : upperBound;
             return upperBound;
         } else {
             const diffInDays = this.getDifferenceInDays(firstDate, lastDate);
-            const realDiffInDays = diffInDays > 366 ? 365 : diffInDays;
+            const realDiffInDays = diffInDays > 365 ? 365 : diffInDays;
             upperBound = Math.floor(realDiffInDays / 7) * days.length;
             let daysLeft =  realDiffInDays % 7;
-            let diff = this.getDifferenceInDays(firstDate, currentDate);
-            let startDate = firstDate;
-            let endDate = currentDate;
-            while (daysLeft > diff) {
-                console.log(1)
-                upperBound++;
-                daysLeft -= diff;
-                startDate = endDate;
-                endDate = this.findNextDate(startDate, days);
-                diff = this.getDifferenceInDays(firstDate, endDate);
+            let currentWeekDay = new Date(firstDate).getDay();
+            while (daysLeft > 0) {
+                if (days.includes(currentWeekDay)) {
+                    upperBound++;
+                }
+                currentWeekDay = (currentWeekDay + 1) % 7;
+                daysLeft--;
             }
             upperBound = upperBound > 300 ? 300 : upperBound;
             return upperBound;
@@ -70,7 +66,6 @@ class LessonsService {
 
         let lessons = [];
         const upperBound = this.getUpperBound(firstDate, currentDate, days, lessonsDTO.lessonsCount, lessonsDTO.lastDate);
-        console.log('upperBound', upperBound);
         while (index < upperBound) {
             lessons.push(this.getLesson(currentDate, lessonsDTO.title));
             currentDate = this.findNextDate(currentDate, days);

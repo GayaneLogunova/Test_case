@@ -17,7 +17,6 @@ class LessonsController {
             // console.log("lessons", lessons);
             res.status(200).json(lessons);
         } catch (err) {
-            console.log('errrrrrrrrrrrrrrrrrrror');
             res.status(520).json("something went wrong during filtration");
         }
     }

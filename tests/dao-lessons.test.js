@@ -102,37 +102,37 @@ function getRandomWeekDays() {
 }
 
 function generateValidLessonsDTO() {
-  const teacherIds = [3]; //getRandomTeacherIds();
-  const days = [1]; //getRandomWeekDays();
-  const firstDate = "2019-09-01";
+  const teacherIds = getRandomTeacherIds();
+  const days = getRandomWeekDays();
+  const firstDate = "2018-09-01";
 
   let validResponse = [];
-  const amountOfLessons = 53;
-  // const amountOfLessons = getRandomInt(300) + 1;
+  const amountOfLessons = getRandomInt(300) + 1;
 
   let index = 1;
   let date = days.includes(new Date(firstDate).getDay()) ? firstDate : lessonsCreation.findNextDate(firstDate, days);
+  console.log()
   while (amountOfLessons >= index) {
     for (const teacherId of teacherIds) {
       validResponse.push({ title: "Blue ocean", date: format(new Date(date), 'yyyy-MM-dd'), status: 0, teacherId });
     }
     index++;
     const nextDate = lessonsCreation.findNextDate(date, days);
-    if (lessonsCreation.getDifferenceInDays(firstDate, nextDate) > 366) {
+    if (lessonsCreation.getDifferenceInDays(firstDate, nextDate) > 365) {
       break;
     }
     date = amountOfLessons >= index ? lessonsCreation.findNextDate(date, days) : date;
   }
 
-  // if (getRandomInt(2) === 0) {
+  if (getRandomInt(2) === 0) {
     return {
-      lessonsDTO: { teacherIds, title: "Blue ocean", days, firstDate: "2019-09-01", lessonsCount: index - 1 },
+      lessonsDTO: { teacherIds, title: "Blue ocean", days, firstDate, lessonsCount: index - 1 },
       validResponse,
     };
-  // }
+  }
 
   return {
-    lessonsDTO: { teacherIds, title: "Blue ocean", days, firstDate: "2019-09-01", lastDate: format(new Date(date), 'yyyy-MM-dd') },
+    lessonsDTO: { teacherIds, title: "Blue ocean", days, firstDate, lastDate: format(new Date(date), 'yyyy-MM-dd') },
     validResponse,
   };
 
@@ -164,25 +164,11 @@ function generateValidLessonsDTO() {
 
 test('test lessons creation', async () => {
   const { lessonsDTO, validResponse } = generateValidLessonsDTO();
-  console.log('validResponse', validResponse);
   const { body } = await createLessons(lessonsDTO);
   const lessonIds = range(body[0], validResponse.length / lessonsDTO.teacherIds.length)
   const createdLessonsAndTeachersRelations = await getLessons(lessonIds);
-  console.log('createdLessonsAndTeachersRelations', createdLessonsAndTeachersRelations);
   await expect(createdLessonsAndTeachersRelations).toStrictEqual(validResponse);
 });
-
-// test('test valida creation request', async () => {
-//   const lessonsDTO = { teacherIds: [1], title: "Blue ocean", days: [1], firstDate: "2018-09-06", lessonsCount: 2 };
-//   const { body } = await createLessons(lessonsDTO);
-//   const lessonIds = range(body[0], 2);
-//   console.log('lessonIds', lessonIds);
-//   const lessons = await db('lessons').whereIn('id', lessonIds).select('*');
-//   lessons = lessons.map(lesson => ({ title: lesson.title, date: lesson.date, status: lesson_status }))
-//   console.log('lessons', lessons);
-//   await expect(body[0]).toBe(11);
-
-// });
 
 // test('filter lessons', async () => {
 //   console.log(process.env.DB_NAME)
