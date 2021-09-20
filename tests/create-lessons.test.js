@@ -30,35 +30,6 @@ async function createLessons(lessonsDTO){
   return { body, code };
 }
 
-
-
-async function filterLessons(){
-  var clientServerOptions = {
-      url: 'http://localhost:3000/',
-      data: {},
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-  }
-  var body = "";
-  var code = 200;  
-  await axios(clientServerOptions)
-    .then(function (response) {
-      body = response.data
-      code = response.status
-    })
-    .catch(function (error) {
-      body = error.response.data
-      code = error.response.status
-    });
- 
-
-  return { body, code };
-}
-
-
-
 async function getLessons(lessonIds){
   const lessons = await db('lessons')
     .join('lesson_teachers', 'lessons.id', 'lesson_teachers.lesson_id')
@@ -162,17 +133,11 @@ function generateValidLessonsDTO() {
 //   expect(body).toBe("Some teachers not found");
 // });
 
-test('test lessons creation', async () => {
-  const { lessonsDTO, validResponse } = generateValidLessonsDTO();
-  const { body } = await createLessons(lessonsDTO);
-  const lessonIds = range(body[0], validResponse.length / lessonsDTO.teacherIds.length)
-  const createdLessonsAndTeachersRelations = await getLessons(lessonIds);
-  await expect(createdLessonsAndTeachersRelations).toStrictEqual(validResponse);
-});
-
-// test('filter lessons', async () => {
-//   console.log(process.env.DB_NAME)
-//   const { body } = await filterLessons();
-//   console.log(body);
-//   expect(body).toBe([{d}]);
+// test('test lessons creation', async () => {
+//   const { lessonsDTO, validResponse } = generateValidLessonsDTO();
+//   const { body } = await createLessons(lessonsDTO);
+//   const lessonIds = range(body[0], validResponse.length / lessonsDTO.teacherIds.length)
+//   const createdLessonsAndTeachersRelations = await getLessons(lessonIds);
+//   await expect(createdLessonsAndTeachersRelations).toStrictEqual(validResponse);
 // });
+

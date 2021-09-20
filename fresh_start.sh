@@ -15,7 +15,7 @@ docker exec test_case_db_1 psql -U postgres -c 'create database test_db;'
 docker exec test_case_db_1 psql -h localhost -U postgres -d lessons_reports -f /database/test.sql
 docker exec test_case_db_1 psql -h localhost -U postgres -d test_db -f /database/test.sql
 
-docker exec test_case_db_1 psql test_db postgres -c 'truncate lessons, lesson_students, lesson_teachers;'
+# docker exec test_case_db_1 psql test_db postgres -c 'truncate lessons, lesson_students, lesson_teachers;'
 
 if [ "$1" = "test" ];
 then
